@@ -29,7 +29,7 @@ void setup() {
   pinMode(Button, INPUT_PULLUP);
   pinMode(LED_BUILTIN,  OUTPUT);
   #ifdef FIRSTRUN
-  EEPROM.write(Mode,255); // При первом запуске в ячейку выбора режима записываем все единицы
+    EEPROM.update(Mode,255); // При первом запуске в ячейку выбора режима записываем все единицы
   #endif
 }
 
@@ -37,11 +37,17 @@ void loop() {
   potVal_X = analogRead(potPin1); // Читаем показания потенциометра X
   potVal_Y = analogRead(potPin2); // Читаем показания потенциометра Y
 
-
 Bttn = digitalRead(Button);
-// Если кнопка нажата - меняем режим работы
+// Устраняем дребезг контактов
+if(!digitalRead(Button)){
+  do{
+    delay(20);
+    }while(!digitalRead(Button));
+  }
+// Если кнопка была нажата/отпущена - меняем режим работы
 if(EEPROM.read(Mode)&!Bttn){
-  EEPROM.write(Mode,!EEPROM.read(Mode)); // Инвертируем байт режима в ЕЕПРОМ
+  EEPROM.update(Mode,!EEPROM.read(Mode)); // Инвертируем байт режима в ЕЕПРОМ
+  Bttn=1;
   // Индицируем режим работы встроенным светодиодом
   // Если светится - линейный режим работы, нет - пропорциональный
   if(EEPROM.read(Mode)){
